@@ -4,17 +4,22 @@
 	"description": "A WebGL Point Cloud Viewer",
 	"main": "main.js",
 	"scripts": {
-		"start": "electron ."
+		"start": "electron .",
+		"pack": "electron-builder --dir",
+		"dist": "electron-builder"
 	},
 	"repository": "https://github.com/potree/potree",
 	"keywords": [
 		"Potree",
 		"point cloud viewer",
-		"lidar viewer"
+		"lidar viewer",
+		"electron",
+		"electron-builder"
 	],
 	"author": "Markus Schuetz",
 	"license": "no license available at this time",
-	"dependencies": {
-		"electron": "21.3.1"
+	"devDependencies": {
+		"electron": "21.3.1",
+		"electron-builder": "^24.13.3"
 	}
 }
