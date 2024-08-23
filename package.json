@@ -19,7 +19,7 @@
 	"author": "Markus Schuetz",
 	"license": "no license available at this time",
 	"devDependencies": {
-		"electron": "21.3.1",
+		"electron": "^30.4.0",
 		"electron-builder": "^24.13.3"
 	}
 }
