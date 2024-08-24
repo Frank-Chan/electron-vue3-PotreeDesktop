@@ -21,5 +21,14 @@
 	"devDependencies": {
 		"electron": "^30.4.0",
 		"electron-builder": "^24.13.3"
+	},
+	"build": {
+		"appId": "potree_desktop",
+		"extraFiles": [
+			{
+				"from": "libs",
+				"to": "libs"
+			}
+		]
 	}
 }
