@@ -32,7 +32,7 @@ function createWindow () {
 	// 	protocol: 'file:',
 	// 	slashes: true
 	// }));
-	mainWindow.loadFile(path.join(__dirname, 'index.html'));
+	mainWindow.loadFile(path.join(__dirname, '../index.html'));
 
 
 	//let menu = new Menu();
@@ -99,7 +99,7 @@ function createWindow () {
 
 
 	// Open the DevTools.
-	//mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {

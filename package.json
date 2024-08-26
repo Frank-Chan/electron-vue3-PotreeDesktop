@@ -2,7 +2,7 @@
 	"name": "potree_desktop",
 	"version": "1.8.1",
 	"description": "A WebGL Point Cloud Viewer",
-	"main": "main.js",
+	"main": "electron/main.js",
 	"scripts": {
 		"start": "electron .",
 		"pack": "electron-builder --dir",
