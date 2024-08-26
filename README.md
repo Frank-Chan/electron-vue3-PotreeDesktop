@@ -1,7 +1,7 @@
 
 
 # About
-This program is oirginted from [PotreeDesktop]([URL_ADDRESS](https://github.com/potree/PotreeDesktop)). Added Electron-Builder and Vue3.
+This program is oirginted from [PotreeDesktop]([URL_ADDRESS](https://github.com/potree/PotreeDesktop)) v1.8.1, Added Electron-Builder and Vue3.
 
 [PotreeDesktop]([URL_ADDRESS](https://github.com/potree/PotreeDesktop)) is a desktop/portable version of the web-based point cloud viewer.
 
