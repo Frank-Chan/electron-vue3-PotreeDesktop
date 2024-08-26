@@ -23,12 +23,14 @@
 		"electron-builder": "^24.13.3"
 	},
 	"build": {
-		"appId": "potree_desktop",
+		"appId": "点云管家",
+		"productName":"点云管家",
 		"extraFiles": [
 			{
 				"from": "libs",
 				"to": "libs"
 			}
-		]
+		],
+		"icon": "public/icon.ico"
 	}
 }

@@ -17,6 +17,7 @@ function createWindow () {
 	mainWindow = new BrowserWindow({
 		width: 1600, 
 		height: 1200,
+		icon: path.join(__dirname, '../public/title-Light.png'), //窗口图标，标题栏logo
 		webPreferences: {
 			nodeIntegration: true,
 			backgroundThrottling: false,
