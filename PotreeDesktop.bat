@@ -1,1 +1,1 @@
-start ./node_modules/electron/dist/electron.exe ./main
+start ./node_modules/electron/dist/electron.exe ./electron/main
