@@ -1,9 +1,5 @@
-const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
-const Menu = electron.Menu;
-const MenuItem = electron.MenuItem;
-const remote = electron.remote;
+const { app, BrowserWindow, Menu, MenuItem } = require('electron');
+
 
 const path = require('path')
 const url = require('url')
@@ -15,8 +11,8 @@ let mainWindow
 function createWindow () {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1600, 
-		height: 1200,
+		width: 1200, 
+		height: 800,
 		icon: path.join(__dirname, '../public/title-Light.png'), //窗口图标，标题栏logo
 		webPreferences: {
 			nodeIntegration: true,
@@ -47,6 +43,7 @@ function createWindow () {
 
 	//menu.append(menuItemWindow);
 
+	// 菜单栏配置
 	let template = [
 		{
 			label: "Window",
@@ -56,9 +53,6 @@ function createWindow () {
 			]
 		}
 	];
-
-	
-
 	let menu = Menu.buildFromTemplate(template);
 	mainWindow.setMenu(menu);
 
@@ -102,6 +96,7 @@ function createWindow () {
 	// Open the DevTools.
 	mainWindow.webContents.openDevTools();
 
+
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
 		// Dereference the window object, usually you would store windows
@@ -109,6 +104,9 @@ function createWindow () {
 		// when you should delete the corresponding element.
 		mainWindow = null
 	})
+	
+	require("@electron/remote/main").initialize();//初始化
+	require("@electron/remote/main").enable(mainWindow.webContents);
 }
 
 // This method will be called when Electron has finished

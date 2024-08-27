@@ -120,7 +120,7 @@
 	<script src="./libs/potree/potree.js"></script>
 	<script src="./libs/plasio/js/laslaz.js"></script>
 
-		<script>
+	<script>
 		let elSplatQuality = $("#converter_choice");
 		elSplatQuality.selectgroup({title: "Converter Choice"});
 
@@ -135,13 +135,11 @@
 	</script>
 	
 	<div class="potree_container" style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; ">
-		<div id="potree_render_area"></div>
+		<div id="potree_render_area"></div>		
 		<div id="potree_sidebar_container"> </div>
 	</div>
 
-
-		<script type="module">
-
+	<script type="module">
 		import {
 			loadDroppedPointcloud, 
 			createPlaceholder, 
@@ -183,157 +181,112 @@
 		viewer.setDescription("");
 		
 		viewer.loadGUI(() => {
-			viewer.setLanguage('en');
+			viewer.setLanguage('zh');//支持["EN", "en"],["FR", "fr"],["DE", "de"],["JP", "jp"],["ES", "es"],["SE", "se"],["ZH", "zh"],["IT", "it"]
 			$("#menu_appearance").next().show();
 			$("#menu_tools").next().show();
 			$("#menu_scene").next().show();
 			$("#menu_filters").next().show();
 			viewer.toggleSidebar();
 
+			//#region 导出LAZ格式点云，
+			// TOTO :没有导出期望的结果
+			let section = $(`
+				<h3 id="menu_meta" class="accordion-header ui-widget"><span>Prototyping</span></h3>
+				<div class="accordion-content ui-widget pv-menu-list"></div>
+			`);
+			let content = section.last();
+			content.html(`
+			<div class="pv-menu-list">
+				<input id="btnExportLaz" type="button" value="export selection to LAZ"/>
+			</div>
+			`);
+			section.first().click(() => content.slideToggle());
+			section.insertBefore($('#menu_appearance'));
+			let button = $("#btnExportLaz");
+			button.click( () => {
+			 	const {normalize} = require("path");
 
-			// let section = $(`
-			// 	<h3 id="menu_meta" class="accordion-header ui-widget"><span>Prototyping</span></h3>
-			// 	<div class="accordion-content ui-widget pv-menu-list"></div>
-			// `);
-			// let content = section.last();
-			// content.html(`
-			// <div class="pv-menu-list">
-			// 	<input id="btnExportLaz" type="button" value="export selection to LAZ"/>
-			// </div>
-			// `);
-			// section.first().click(() => content.slideToggle());
-			// section.insertBefore($('#menu_appearance'));
+			 	let pointclouds = viewer.scene.pointclouds; //[0].pcoGeometry.url
+			 	//let cmdInput = pointclouds.map(p => normalize(`${p.pcoGeometry.url}/../`)).join( );
+			 	let inputPaths = pointclouds.map(p => normalize(`${p.pcoGeometry.url}/../`));
 
-			// let button = $("#btnExportLaz");
-			// button.click( () => {
+			 	let volumes = viewer.scene.volumes;
+			 	let matrices = volumes.map(v => v.matrix.elements);
 
-			// 	const {normalize} = require("path");
+			 	let cmdArea = "";
 
-			// 	let pointclouds = viewer.scene.pointclouds; //[0].pcoGeometry.url
-			// 	//let cmdInput = pointclouds.map(p => normalize(`${p.pcoGeometry.url}/../`)).join( );
-			// 	let inputPaths = pointclouds.map(p => normalize(`${p.pcoGeometry.url}/../`));
+			 	for(let matrix of matrices){
+			 		let cmd = `matrix(${matrix.join(", ")})`;
 
-			// 	let volumes = viewer.scene.volumes;
-			// 	let matrices = volumes.map(v => v.matrix.elements);
+			 		cmdArea += `${cmd} `;
+			 	}
+			
+			 	let suggestedPath = normalize(viewer.scene.pointclouds[0].pcoGeometry.url + "/../../export.las");
+			 	const { dialog } = require('@electron/remote')
+				// 弹出文件保存对话框
+			 	const chosenPath = dialog.showSaveDialogSync({
+			 		title: "选择导出路径",
+			 		defaultPath: suggestedPath,
+			 		buttonLabel: "Select",
+			 		filters: [],
+			 		properties: ["openDirectory ", "promptToCreate", "createDirectory"],
+			 	});
 
-			// 	let cmdArea = "";
+			 	if(!chosenPath){
+			 		return;
+			 	}
 
-			// 	for(let matrix of matrices){
-			// 		let cmd = `matrix(${matrix.join(", ")})`;
+			 	// let cmd = `${cmdInput} -o ${chosenPath} ${cmdArea}`;
+				// 启动一个子进程，执行导出命令
+			 	const { spawn } = require('child_process');
 
-			// 		cmdArea += `${cmd} `;
-			// 	}
-				
-			// 	let suggestedPath = normalize(viewer.scene.pointclouds[0].pcoGeometry.url + "/../../export.las");
-			// 	const dialog = require('electron').remote.dialog;
-			// 	const chosenPath = dialog.showSaveDialogSync(null, {
-			// 		title: "Chose Export Path",
-			// 		defaultPath: suggestedPath,
-			// 		buttonLabel: "Select",
-			// 		filters: [],
-			// 		properties: ["openDirectory ", "promptToCreate", "createDirectory"],
-			// 	});
+			 	let exe = './libs/CPotree/filter.exe';
+			 	let parameters = [
+			 		...inputPaths,
+			 		"-o", chosenPath,
+			 		"--area", cmdArea
+			 	];
+			 	console.log(parameters);
 
-			// 	if(!chosenPath){
-			// 		return;
-			// 	}
+			 	const converter = spawn(exe, parameters);
+				//监听子进程的标准输出流
+			 	converter.stdout.on('data', (data) => {
+			 		const string = new TextDecoder("utf-8").decode(data);
 
-
-			// 	// let cmd = `${cmdInput} -o ${chosenPath} ${cmdArea}`;
-
-			// 	const { spawn } = require('child_process');
-
-			// 	let exe = './libs/CPotree/filter.exe';
-			// 	let parameters = [
-			// 		...inputPaths,
-			// 		"-o", chosenPath,
-			// 		"--area", cmdArea
-			// 	];
-			// 	console.log(parameters);
-
-			// 	const converter = spawn(exe, parameters);
-
-			// 	converter.stdout.on('data', (data) => {
-			// 		const string = new TextDecoder("utf-8").decode(data);
-
-			// 		console.log("stdout", string);
-			// 	});
-
-			// 	converter.stderr.on('data', (data) => {
-			// 		console.log("==");
-			// 		console.error(`stderr: ${data}`);
-			// 	});
-
-			// 	converter.on('close', (code) => {
-			// 		console.log(`child process exited with code ${code}`);
-			// 	});
-
-				
-
-			// });
-
+			 		console.log("stdout", string);
+			 	});
+				//监听子进程的标准错误流
+			 	converter.stderr.on('data', (data) => {
+			 		console.log("==");
+			 		console.error(`stderr: ${data}`);
+			 	});
+				//子进程结束运行时,打印退出码
+			 	converter.on('close', (code) => {
+			 		console.log(`child process exited with code ${code}`);
+			 	});
+			});
+			//#endregion
 		});
-
-		// load a file from your disc or USB drive:
+		
+		//#region 从本地或在线加载默认点云
 		//Potree.loadPointCloud("C:/dev/workspaces/potree/develop/pointclouds/lion_takanawa/cloud.js", "Point Cloud Name", function(e){
-		
-		//Potree.loadPointCloud("http://5.9.65.151/mschuetz/potree/resources/pointclouds/archpro/heidentor/cloud.js", "Point Cloud Name", function(e){
-		//	viewer.scene.addPointCloud(e.pointcloud);
-		//	e.pointcloud.position.z = 0;
-		//	let material = e.pointcloud.material;
-		//	material.size = 1;
-		//	material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+		Potree.loadPointCloud("http://5.9.65.151/mschuetz/potree/resources/pointclouds/archpro/heidentor/cloud.js", "Point Cloud Name", function(e){
+			viewer.scene.addPointCloud(e.pointcloud);
+			e.pointcloud.position.z = 0;
+			let material = e.pointcloud.material;
+			material.size = 1;
+			material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
 
-		//	viewer.scene.view.position.set(13.856734292740617, -9.125174923658731, 14.563928417406354);
-		//	viewer.scene.view.lookAt(-3.5482630104475366, 2.728596783815762, 6.1406044783018725);
-		//});
-		
-		
-
-		//Potree.loadPointCloud("C:/dev/pointclouds/ot_35120C7102A_1/cloud.js", "CA13", e => {
-		////Potree.loadPointCloud("../pointclouds/C/dev/pointclouds/test/cloud.js", "sigeom.sa", e => {
-		//	let scene = viewer.scene;
-		//	let pointcloud = e.pointcloud;
-		//	
-		//	let material = pointcloud.material;
-		//	material.size = 3;
-		//	material.pointSizeType = Potree.PointSizeType.FIXED;
-		//	material.pointColorType = Potree.PointColorType.SOURCE;
-		//	material.shape = Potree.PointShape.SQUARE;
-		//	
-		//	scene.addPointCloud(pointcloud);
-		//	
-		//	scene.view.position.set(693195.575, 3915628.878, 472.872);
-		//	scene.view.lookAt(693747.110, 3916033.332, 33.996);
-		//});
-
-		
-		// viewer.onGUILoaded(() => {
-		// 	let message = `
-		// 	Welcome to Potree Desktop.<br>
-		// 	<p>
-		// 	This portable version can be used to load <a href="https://github.com/potree/PotreeConverter", target="_blank"> converted point clouds</a>
-		// 	directly from disk. Just drag & drop a cloud.js file, or it's parent folder, into this window.
-		// 	</p>
-
-		// 	<p>
-		// 	You can set up a default scene by modifying the index.html file in the potree desktop folder. 
-		// 	</p>
-		// 	`;
-
-		// 	//viewer.postMessage(message);
-		// 	viewer.postMessage(message, {duration: 15000});
-		// });
+			viewer.scene.view.position.set(13.856734292740617, -9.125174923658731, 14.563928417406354);
+			viewer.scene.view.lookAt(-3.5482630104475366, 2.728596783815762, 6.1406044783018725);
+		});
+		//#endregion
 
 		window.addEventListener('error', (e) => {
 			//console.log(e);
 			viewer.postError(e.error.message);
 		});
-
-		
-		
 	</script>
-
 
 	</body>
 </html>
